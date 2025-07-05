@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breakout Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="480" height="320"></canvas>
+        <div class="game-info">
+            Score: <span id="score">0</span>
+        </div>
+        <div id="gameOver" class="hidden">
+            <h1>GAME OVER</h1>
+            <button id="restartButton">Restart</button>
+        </div>
+        <div id="gameWin" class="hidden">
+            <h1>YOU WIN!</h1>
+            <button id="winRestartButton">Restart</button>
+        </div>
+    </div>
+    <script src="breakout.js"></script>
+</body>
+</html>
