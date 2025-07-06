@@ -26,6 +26,8 @@ let dx, dy;
 let paddleHeight;
 let paddleWidth;
 let paddleX;
+let rightPressed = false; // Keep for keyboard control
+let leftPressed = false;  // Keep for keyboard control
 
 // Brick properties
 let brickRowCount = 5;
@@ -40,6 +42,9 @@ let bricks = [];
 
 // Scaling factor
 let scaleFactor = 1;
+
+// Mouse control variable
+let isDragging = false;
 
 function resizeGame() {
     const gameContainer = document.querySelector('.game-container');
@@ -106,34 +111,20 @@ document.addEventListener('keyup', keyUpHandler, false);
 canvas.addEventListener('touchstart', touchHandler, false);
 canvas.addEventListener('touchmove', touchHandler, false);
 
-function touchHandler(e) {
-    e.preventDefault(); // Prevent scrolling and other default touch behaviors
-    if (e.touches.length === 1) {
-        const touchX = e.touches[0].clientX;
-        const canvasRect = canvas.getBoundingClientRect();
-        const relativeX = touchX - canvasRect.left;
+// Mouse event listeners for canvas
+canvas.addEventListener('mousedown', mouseDownHandler, false);
+canvas.addEventListener('mousemove', mouseMoveHandler, false);
+canvas.addEventListener('mouseup', mouseUpHandler, false);
+canvas.addEventListener('mouseleave', mouseUpHandler, false); // Stop dragging if mouse leaves canvas
 
-        // Position the paddle's center at the touch point
-        paddleX = relativeX - paddleWidth / 2;
+function updatePaddlePosition(clientX) {
+    const canvasRect = canvas.getBoundingClientRect();
+    const relativeX = clientX - canvasRect.left;
 
-        // Ensure paddle stays within canvas bounds
-        if (paddleX < 0) {
-            paddleX = 0;
-        }
-        if (paddleX + paddleWidth > canvas.width) {
-            paddleX = canvas.width - paddleWidth;
-        }
-    }
-}
+    // Position the paddle's center at the touch/mouse point
+    paddleX = relativeX - paddleWidth / 2;
 
-function keyDownHandler(e) {
-    // Keep keyboard controls for desktop
-    if (e.key === "Right" || e.key === "ArrowRight") {
-        paddleX += 7 * scaleFactor;
-    } else if (e.key === "Left" || e.key === "ArrowLeft") {
-        paddleX -= 7 * scaleFactor;
-    }
-    // Ensure paddle stays within canvas bounds for keyboard
+    // Ensure paddle stays within canvas bounds
     if (paddleX < 0) {
         paddleX = 0;
     }
@@ -142,8 +133,42 @@ function keyDownHandler(e) {
     }
 }
 
+function touchHandler(e) {
+    e.preventDefault(); // Prevent scrolling and other default touch behaviors
+    if (e.touches.length === 1) {
+        updatePaddlePosition(e.touches[0].clientX);
+    }
+}
+
+function mouseDownHandler(e) {
+    isDragging = true;
+    updatePaddlePosition(e.clientX);
+}
+
+function mouseMoveHandler(e) {
+    if (isDragging) {
+        updatePaddlePosition(e.clientX);
+    }
+}
+
+function mouseUpHandler(e) {
+    isDragging = false;
+}
+
+function keyDownHandler(e) {
+    if (e.key === "Right" || e.key === "ArrowRight") {
+        rightPressed = true;
+    } else if (e.key === "Left" || e.key === "ArrowLeft") {
+        leftPressed = true;
+    }
+}
+
 function keyUpHandler(e) {
-    // No action needed on key up for direct paddle control
+    if (e.key === "Right" || e.key === "ArrowRight") {
+        rightPressed = false;
+    } else if (e.key === "Left" || e.key === "ArrowLeft") {
+        leftPressed = false;
+    }
 }
 
 // Draw functions
@@ -240,6 +265,13 @@ function draw() {
 
     x += dx;
     y += dy;
+
+    // Paddle movement for keyboard (continuous movement)
+    if (rightPressed && paddleX < canvas.width - paddleWidth) {
+        paddleX += 7 * scaleFactor;
+    } else if (leftPressed && paddleX > 0) {
+        paddleX -= 7 * scaleFactor;
+    }
 
     requestAnimationFrame(draw);
 }
