@@ -10,6 +10,9 @@ const winRestartButton = document.getElementById('winRestartButton');
 const BASE_GAME_WIDTH = 480;
 const BASE_GAME_HEIGHT = 320;
 
+// Ball speed increment per paddle hit
+const BALL_SPEED_INCREMENT = 0.2; // Adjust this value as needed
+
 let score = 0;
 let lives = 3;
 let gameRunning = true;
@@ -216,6 +219,9 @@ function draw() {
     } else if (y + dy > canvas.height - ballRadius) {
         if (x > paddleX && x < paddleX + paddleWidth) {
             dy = -dy;
+            // Increase ball speed on paddle hit
+            dx *= (1 + BALL_SPEED_INCREMENT);
+            dy *= (1 + BALL_SPEED_INCREMENT);
         } else {
             lives--;
             if (lives === 0) {
