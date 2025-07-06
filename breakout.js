@@ -43,21 +43,30 @@ function resizeGame() {
     const containerWidth = gameContainer.clientWidth;
     const containerHeight = gameContainer.clientHeight;
 
-    // Calculate new canvas dimensions while maintaining aspect ratio
-    let newCanvasWidth = containerWidth;
-    let newCanvasHeight = (BASE_GAME_HEIGHT / BASE_GAME_WIDTH) * newCanvasWidth;
+    let newCanvasWidth;
+    let newCanvasHeight;
 
-    if (newCanvasHeight > containerHeight) {
-        newCanvasHeight = containerHeight;
-        newCanvasWidth = (BASE_GAME_WIDTH / BASE_GAME_HEIGHT) * newCanvasHeight;
+    // Check if it's a desktop view (e.g., wider than a typical mobile screen)
+    if (window.innerWidth > 768) { // You can adjust this breakpoint
+        newCanvasWidth = BASE_GAME_WIDTH;
+        newCanvasHeight = BASE_GAME_HEIGHT;
+        scaleFactor = 1; // No scaling for desktop
+    } else {
+        // Mobile view: responsive scaling
+        newCanvasWidth = containerWidth;
+        newCanvasHeight = (BASE_GAME_HEIGHT / BASE_GAME_WIDTH) * newCanvasWidth;
+
+        if (newCanvasHeight > containerHeight) {
+            newCanvasHeight = containerHeight;
+            newCanvasWidth = (BASE_GAME_WIDTH / BASE_GAME_HEIGHT) * newCanvasHeight;
+        }
+        scaleFactor = newCanvasWidth / BASE_GAME_WIDTH;
     }
 
     canvas.width = newCanvasWidth;
     canvas.height = newCanvasHeight;
 
-    scaleFactor = newCanvasWidth / BASE_GAME_WIDTH;
-
-    // Scale game elements
+    // Scale game elements based on the determined scaleFactor
     ballRadius = 10 * scaleFactor;
     paddleHeight = 10 * scaleFactor;
     paddleWidth = 75 * scaleFactor;
