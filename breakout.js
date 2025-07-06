@@ -6,10 +6,6 @@ const gameWinScreen = document.getElementById('gameWin');
 const restartButton = document.getElementById('restartButton');
 const winRestartButton = document.getElementById('winRestartButton');
 
-// New: Mobile control buttons
-const leftButton = document.getElementById('leftButton');
-const rightButton = document.getElementById('rightButton');
-
 let score = 0;
 let lives = 3; // Not implemented in UI yet, but good to have
 let gameRunning = true;
@@ -53,16 +49,29 @@ initBricks();
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
 
-// New: Touch and mouse events for mobile buttons
-leftButton.addEventListener('mousedown', () => leftPressed = true);
-leftButton.addEventListener('mouseup', () => leftPressed = false);
-leftButton.addEventListener('touchstart', (e) => { e.preventDefault(); leftPressed = true; });
-leftButton.addEventListener('touchend', (e) => { e.preventDefault(); leftPressed = false; });
+// NEW: Touch event listeners for canvas
+canvas.addEventListener('touchstart', touchHandler, false);
+canvas.addEventListener('touchmove', touchHandler, false);
 
-rightButton.addEventListener('mousedown', () => rightPressed = true);
-rightButton.addEventListener('mouseup', () => rightPressed = false);
-rightButton.addEventListener('touchstart', (e) => { e.preventDefault(); rightPressed = true; });
-rightButton.addEventListener('touchend', (e) => { e.preventDefault(); rightPressed = false; });
+function touchHandler(e) {
+    if (e.touches.length === 1) {
+        const touchX = e.touches[0].clientX;
+        const canvasRect = canvas.getBoundingClientRect();
+        const relativeX = touchX - canvasRect.left;
+
+        // Position the paddle's center at the touch point
+        paddleX = relativeX - paddleWidth / 2;
+
+        // Ensure paddle stays within canvas bounds
+        if (paddleX < 0) {
+            paddleX = 0;
+        }
+        if (paddleX + paddleWidth > canvas.width) {
+            paddleX = canvas.width - paddleWidth;
+        }
+    }
+    e.preventDefault(); // Prevent scrolling and other default touch behaviors
+}
 
 function keyDownHandler(e) {
     if (e.key === "Right" || e.key === "ArrowRight") {
@@ -171,7 +180,7 @@ function draw() {
     x += dx;
     y += dy;
 
-    // Paddle movement
+    // Paddle movement (for keyboard)
     if (rightPressed && paddleX < canvas.width - paddleWidth) {
         paddleX += 7;
     } else if (leftPressed && paddleX > 0) {
