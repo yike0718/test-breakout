@@ -6,34 +6,77 @@ const gameWinScreen = document.getElementById('gameWin');
 const restartButton = document.getElementById('restartButton');
 const winRestartButton = document.getElementById('winRestartButton');
 
+// Base game resolution for scaling
+const BASE_GAME_WIDTH = 480;
+const BASE_GAME_HEIGHT = 320;
+
 let score = 0;
-let lives = 3; // Not implemented in UI yet, but good to have
+let lives = 3;
 let gameRunning = true;
 
 // Ball properties
-let ballRadius = 10;
-let x = canvas.width / 2;
-let y = canvas.height - 30;
-let dx = 2;
-let dy = -2;
+let ballRadius;
+let x, y;
+let dx, dy;
 
 // Paddle properties
-let paddleHeight = 10;
-let paddleWidth = 75;
-let paddleX = (canvas.width - paddleWidth) / 2;
-let rightPressed = false;
-let leftPressed = false;
+let paddleHeight;
+let paddleWidth;
+let paddleX;
 
 // Brick properties
 let brickRowCount = 5;
 let brickColumnCount = 8;
-let brickWidth = 50;
-let brickHeight = 20;
-let brickPadding = 10;
-let brickOffsetTop = 30;
-let brickOffsetLeft = 30;
+let brickWidth;
+let brickHeight;
+let brickPadding;
+let brickOffsetTop;
+let brickOffsetLeft;
 
 let bricks = [];
+
+// Scaling factor
+let scaleFactor = 1;
+
+function resizeGame() {
+    const gameContainer = document.querySelector('.game-container');
+    const containerWidth = gameContainer.clientWidth;
+    const containerHeight = gameContainer.clientHeight;
+
+    // Calculate new canvas dimensions while maintaining aspect ratio
+    let newCanvasWidth = containerWidth;
+    let newCanvasHeight = (BASE_GAME_HEIGHT / BASE_GAME_WIDTH) * newCanvasWidth;
+
+    if (newCanvasHeight > containerHeight) {
+        newCanvasHeight = containerHeight;
+        newCanvasWidth = (BASE_GAME_WIDTH / BASE_GAME_HEIGHT) * newCanvasHeight;
+    }
+
+    canvas.width = newCanvasWidth;
+    canvas.height = newCanvasHeight;
+
+    scaleFactor = newCanvasWidth / BASE_GAME_WIDTH;
+
+    // Scale game elements
+    ballRadius = 10 * scaleFactor;
+    paddleHeight = 10 * scaleFactor;
+    paddleWidth = 75 * scaleFactor;
+    brickWidth = 50 * scaleFactor;
+    brickHeight = 20 * scaleFactor;
+    brickPadding = 10 * scaleFactor;
+    brickOffsetTop = 30 * scaleFactor;
+    brickOffsetLeft = 30 * scaleFactor;
+
+    // Re-initialize positions based on new scale
+    x = canvas.width / 2;
+    y = canvas.height - (30 * scaleFactor);
+    dx = 2 * scaleFactor;
+    dy = -2 * scaleFactor;
+    paddleX = (canvas.width - paddleWidth) / 2;
+
+    initBricks(); // Re-initialize bricks with new scaled dimensions
+}
+
 function initBricks() {
     for (let c = 0; c < brickColumnCount; c++) {
         bricks[c] = [];
@@ -43,13 +86,11 @@ function initBricks() {
     }
 }
 
-initBricks();
-
 // Event Listeners for paddle movement
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
 
-// NEW: Touch event listeners for canvas
+// Touch event listeners for canvas
 canvas.addEventListener('touchstart', touchHandler, false);
 canvas.addEventListener('touchmove', touchHandler, false);
 
@@ -74,19 +115,23 @@ function touchHandler(e) {
 }
 
 function keyDownHandler(e) {
+    // Keep keyboard controls for desktop
     if (e.key === "Right" || e.key === "ArrowRight") {
-        rightPressed = true;
+        paddleX += 7 * scaleFactor;
     } else if (e.key === "Left" || e.key === "ArrowLeft") {
-        leftPressed = true;
+        paddleX -= 7 * scaleFactor;
+    }
+    // Ensure paddle stays within canvas bounds for keyboard
+    if (paddleX < 0) {
+        paddleX = 0;
+    }
+    if (paddleX + paddleWidth > canvas.width) {
+        paddleX = canvas.width - paddleWidth;
     }
 }
 
 function keyUpHandler(e) {
-    if (e.key === "Right" || e.key === "ArrowRight") {
-        rightPressed = false;
-    } else if (e.key === "Left" || e.key === "ArrowLeft") {
-        leftPressed = false;
-    }
+    // No action needed on key up for direct paddle control
 }
 
 // Draw functions
@@ -168,10 +213,11 @@ function draw() {
                 gameOverScreen.classList.remove('hidden');
                 gameRunning = false;
             } else {
+                // Reset ball and paddle position after losing a life
                 x = canvas.width / 2;
-                y = canvas.height - 30;
-                dx = 2;
-                dy = -2;
+                y = canvas.height - (30 * scaleFactor);
+                dx = 2 * scaleFactor;
+                dy = -2 * scaleFactor;
                 paddleX = (canvas.width - paddleWidth) / 2;
             }
         }
@@ -179,13 +225,6 @@ function draw() {
 
     x += dx;
     y += dy;
-
-    // Paddle movement (for keyboard) - REMOVED FOR TOUCH CONTROL
-    // if (rightPressed && paddleX < canvas.width - paddleWidth) {
-    //     paddleX += 7;
-    // } else if (leftPressed && paddleX > 0) {
-    //     paddleX -= 7;
-    // }
 
     requestAnimationFrame(draw);
 }
@@ -197,12 +236,7 @@ winRestartButton.addEventListener('click', startGame);
 function startGame() {
     score = 0;
     lives = 3;
-    x = canvas.width / 2;
-    y = canvas.height - 30;
-    dx = 2;
-    dy = -2;
-    paddleX = (canvas.width - paddleWidth) / 2;
-    initBricks();
+    resizeGame(); // Ensure game is sized correctly on start
     scoreDisplay.innerHTML = score;
     gameOverScreen.classList.add('hidden');
     gameWinScreen.classList.add('hidden');
@@ -210,4 +244,7 @@ function startGame() {
     draw();
 }
 
+// Initial game setup and resize
+resizeGame();
+window.addEventListener('resize', resizeGame);
 startGame();
