@@ -17,15 +17,14 @@ body {
     border: 2px solid #eee;
     box-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
     background-color: #000;
-    max-width: 90%; /* Adjust as needed */
-    width: 100%;
+    max-width: 480px; /* Default max-width for PC */
+    width: 100%; /* For smaller screens */
 }
 
 #gameCanvas {
     background-color: #000;
     display: block;
-    width: 100%; /* Canvas will take full width of its container */
-    height: auto; /* Maintain aspect ratio */
+    /* width and height will be set by JavaScript */
 }
 
 .game-info {
@@ -68,4 +67,10 @@ body {
     border-radius: 5px;
     cursor: pointer;
     font-size: 1em;
+}
+
+@media screen and (max-width: 768px) {
+    .game-container {
+        max-width: 100%;
+    }
 }
