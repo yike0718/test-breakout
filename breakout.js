@@ -6,6 +6,10 @@ const gameWinScreen = document.getElementById('gameWin');
 const restartButton = document.getElementById('restartButton');
 const winRestartButton = document.getElementById('winRestartButton');
 
+// New: Mobile control buttons
+const leftButton = document.getElementById('leftButton');
+const rightButton = document.getElementById('rightButton');
+
 let score = 0;
 let lives = 3; // Not implemented in UI yet, but good to have
 let gameRunning = true;
@@ -48,6 +52,17 @@ initBricks();
 // Event Listeners for paddle movement
 document.addEventListener('keydown', keyDownHandler, false);
 document.addEventListener('keyup', keyUpHandler, false);
+
+// New: Touch and mouse events for mobile buttons
+leftButton.addEventListener('mousedown', () => leftPressed = true);
+leftButton.addEventListener('mouseup', () => leftPressed = false);
+leftButton.addEventListener('touchstart', (e) => { e.preventDefault(); leftPressed = true; });
+leftButton.addEventListener('touchend', (e) => { e.preventDefault(); leftPressed = false; });
+
+rightButton.addEventListener('mousedown', () => rightPressed = true);
+rightButton.addEventListener('mouseup', () => rightPressed = false);
+rightButton.addEventListener('touchstart', (e) => { e.preventDefault(); rightPressed = true; });
+rightButton.addEventListener('touchend', (e) => { e.preventDefault(); rightPressed = false; });
 
 function keyDownHandler(e) {
     if (e.key === "Right" || e.key === "ArrowRight") {
