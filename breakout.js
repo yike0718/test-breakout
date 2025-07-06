@@ -54,6 +54,7 @@ canvas.addEventListener('touchstart', touchHandler, false);
 canvas.addEventListener('touchmove', touchHandler, false);
 
 function touchHandler(e) {
+    e.preventDefault(); // Prevent scrolling and other default touch behaviors
     if (e.touches.length === 1) {
         const touchX = e.touches[0].clientX;
         const canvasRect = canvas.getBoundingClientRect();
@@ -70,7 +71,6 @@ function touchHandler(e) {
             paddleX = canvas.width - paddleWidth;
         }
     }
-    e.preventDefault(); // Prevent scrolling and other default touch behaviors
 }
 
 function keyDownHandler(e) {
@@ -180,12 +180,12 @@ function draw() {
     x += dx;
     y += dy;
 
-    // Paddle movement (for keyboard)
-    if (rightPressed && paddleX < canvas.width - paddleWidth) {
-        paddleX += 7;
-    } else if (leftPressed && paddleX > 0) {
-        paddleX -= 7;
-    }
+    // Paddle movement (for keyboard) - REMOVED FOR TOUCH CONTROL
+    // if (rightPressed && paddleX < canvas.width - paddleWidth) {
+    //     paddleX += 7;
+    // } else if (leftPressed && paddleX > 0) {
+    //     paddleX -= 7;
+    // }
 
     requestAnimationFrame(draw);
 }
